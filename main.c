@@ -9,7 +9,7 @@ char** argv;
 		fprintf(stderr, "ERROR: One of the argumets are missing\n");
 		_exit(1);
 	}
-	ac = (*argv + 2)[0] - '0';
+	ac = *(argv + 2)[0] - '0';
 	search(*(argv + 1), ac);
 	_exit(0);
 }

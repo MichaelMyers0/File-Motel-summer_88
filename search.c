@@ -4,6 +4,7 @@ static char buf[buf_cap];
 static char ppath[buf_cap];
 static char copy_buf[BUFSIZ];
 static char f_path[buf_cap / 2];
+static char f_path1[buf_cap / 2];
 
 static open_dir(dirp, name);
 static close_dir(dirp);
@@ -13,6 +14,8 @@ static check_file(name, suffix);
 static read_dir(name, ac);
 static open_file(path, fd, flags, mode, msg);
 static close_file(fd, msg);
+static get_inode_info(name, statbuf);
+static make_a_back_up_copy(start, name, back_up_path);
 
 static open_dir(dirp, name)
 DIR** dirp;
@@ -125,6 +128,52 @@ const char* suffix;
 	return *(name + len - 1) == *(suffix + 1) ? 1 : 0;	
 }
 
+static get_inode_info(name, statbuf)
+const char* name;
+struct stat* statbuf;
+{
+	int res;
+	errno = 0;
+	res = stat(name, statbuf);
+	if (res == -1)
+	{
+		perror("get_inode_info()\n");
+		exit(6);
+	}
+}
+
+static make_a_back_up_copy(start, name, back_up_path)
+const char* start;	
+const char* name;
+const char* back_up_path;
+{
+	DIR* dirp;
+	struct stat statbuf1, statbuf2;
+	int res;
+	size_t len, len2;
+	struct dirent* ent;
+	char* s;
+	open_dir(&dirp, start);
+	len = strlen(name);
+	get_inode_info(name, &statbuf1);
+	while ((ent = readdir(dirp)))
+	{
+		if (0 == strcmp(ent->d_name, ".") || 0 == strcmp(ent->d_name, ".."))
+			continue;
+		if (0 == strncmp(name + 2, ent->d_name, len))
+		{
+			get_inode_info(back_up_path, &statbuf2);
+			if (statbuf1.st_size != statbuf2.st_size)
+			{
+				printf("DEBUG_WE_HERE\n");
+				build_path(f_path1, back_up_path, "_", "v_2", NULL);
+				copy(f_path1, name);
+			}
+		}
+	}
+	close_dir(dirp);
+}
+
 static read_dir(name, ac)
 const char* name;
 enum action ac;
@@ -150,7 +199,13 @@ enum action ac;
 					build_path(f_path, PATH, ppath + 1);
 					printf("DEBUG_PRINT - %s\n", f_path);
 					copy(f_path, ppath);
-					break;
+				}
+				if (ac == backup_copy)
+				{
+					build_path(f_path, PATH, ppath + 1, NULL);
+					printf("AC==BACKUP_COPY -%s\n", f_path);
+					make_a_back_up_copy(PATH, ppath, f_path);
+					*f_path = 0;
 				}
 				*ppath = 0;
 				break;
@@ -166,5 +221,5 @@ search(start, ac)
 const char* start;
 enum action ac;
 {
-	read_dir(start);
+	read_dir(start, ac);
 }
