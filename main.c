@@ -1,4 +1,4 @@
-#include <unistd.h>
+#include "search.h"
 main(argc, argv)
 int argc;
 char** argv;

@@ -5,6 +5,7 @@ static char ppath[buf_cap];
 
 static open_dir(dirp, name);
 static close_dir(dirp);
+static build_path(char* dest, ...);
 static read_dir(name);
 
 static open_dir(dirp, name)
@@ -32,6 +33,27 @@ DIR* dirp;
 	}
 }
 
+static build_path(char* dest, ...)			/*incosistency with other code because of stdarg*/
+{
+	va_list vl;
+	int i;
+	const char* arg;
+	size_t len;
+	va_start(vl, dest);
+	for (i = 0; (arg = va_arg(vl, const char*)); i++)
+	{
+		if (!i)
+		{
+			strcpy(dest, arg);
+			continue;
+		}
+		strcat(dest, arg);
+	}
+	len = strlen(dest);
+	*(dest + len) = 0;
+	va_end(vl);
+}
+
 static read_dir(name)
 const char* name;
 {
@@ -48,11 +70,7 @@ const char* name;
 		switch (ent->d_type)
 		{
 			case DT_REG :
-				strcpy(ppath, name);
-				strcat(ppath, BACK_SLASH);
-				strcat(ppath, ent->d_name);
-				len = strlen(ppath);
-				*(ppath + len) = 0;
+				build_path(ppath, name, BACK_SLASH, ent->d_name, NULL);
 				printf("DEBUG_PRINT - %s\n", ppath);
 				stat(ppath, &statbuf);
 				*ppath = 0;

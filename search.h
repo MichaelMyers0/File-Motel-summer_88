@@ -9,6 +9,7 @@
 #include <string.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#include <stdarg.h>
 enum {buf_cap = 1024};
 #define BACK_SLASH "/"
 search(start);
