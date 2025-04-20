@@ -10,7 +10,12 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <stdarg.h>
+#include <time.h>
+#include <fcntl.h>
 enum {buf_cap = 1024};
+enum action {copy_file, backup_copy};
+enum {execute_bit = 0xA00};
 #define BACK_SLASH "/"
-search(start);
+#define PATH "./backup_storage"
+search(start, ac);
 #endif
