@@ -4,12 +4,12 @@ int argc;
 char** argv;
 {
 	enum action ac;
-	if (argc < 2)
+	if (argc < 3)
 	{
-		fprintf(stderr, "ERROR: Provide starting path\n");
+		fprintf(stderr, "ERROR: One of the argumets are missing\n");
 		_exit(1);
 	}
-	ac = copy_file;
+	ac = (*argv + 2)[0] - '0';
 	search(*(argv + 1), ac);
 	_exit(0);
 }
