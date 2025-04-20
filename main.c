@@ -1,6 +1,13 @@
 #include <unistd.h>
-main()
+main(argc, argv)
+int argc;
+char** argv;
 {
-	search(".");
+	if (argc < 2)
+	{
+		fprintf(stderr, "ERROR: Provide starting path\n");
+		_exit(1);
+	}
+	search(*(argv + 1));
 	_exit(0);
 }
